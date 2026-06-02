@@ -8,16 +8,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-
 :root {
     --bg:#0f0f14;
-    --card:rgba(27,27,37,0.8);
+    --card:rgba(27,27,37,0.85);
     --brand:#40c1ba;
     --text:#fff;
     --soft:#aaa;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
 body{
     background:var(--bg);
@@ -38,6 +41,7 @@ header{
     align-items:center;
 }
 
+/* BUTTON */
 button{
     background:var(--brand);
     border:none;
@@ -74,22 +78,32 @@ textarea{
 /* POST */
 .post{
     background:var(--card);
-    padding:15px;
-    border-radius:15px;
-    margin-bottom:15px;
+    padding:16px;
+    border-radius:14px;
+    margin-bottom:14px;
+    border:1px solid rgba(255,255,255,0.06);
 }
 
+/* USER */
 .meta{
     font-size:12px;
     color:var(--soft);
     margin-bottom:8px;
 }
 
+/* CONTENT */
+.content{
+    font-size:15px;
+    line-height:1.5;
+    margin-bottom:12px;
+}
+
+/* ACTIONS */
 .actions{
     display:flex;
     gap:10px;
-    margin-top:10px;
     flex-wrap:wrap;
+    margin-top:10px;
 }
 
 .action-btn{
@@ -100,24 +114,44 @@ textarea{
     font-size:13px;
 }
 
+.action-btn:hover{
+    background:#333;
+}
+
+/* COMMENT BOX (THREAD STYLE) */
 .comment-box{
-    margin-top:10px;
+    margin-top:12px;
+    padding:12px;
+    background:rgba(0,0,0,0.25);
+    border-radius:12px;
+    border-left:2px solid var(--brand);
     display:none;
 }
 
+/* COMMENT ITEM */
 .comment{
     margin-top:8px;
-    padding:8px;
+    padding:8px 10px;
     background:#111;
     border-radius:10px;
     font-size:13px;
+}
+
+/* INPUT */
+.comment-input{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#0f0f14;
+    color:#fff;
 }
 
 /* MOBILE */
 @media(max-width:768px){
     .container{padding:5px;}
 }
-
 </style>
 </head>
 
@@ -144,7 +178,7 @@ textarea{
 <script>
 
 const SUPABASE_URL = "https://mrkhxqojxqnqzaeulpvh.supabase.co";
-const SUPABASE_KEY = "sb_publishable_fysx_fm474qhZzH3pW3qnw_7qEgvNmj";
+const SUPABASE_KEY = "sb_publishable_fysx_fm474qhZzH3pW3qnw_7qEgvNmj"; // IMPORTANTÍSSIMO
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -158,17 +192,9 @@ if(!user){
 async function createPost(){
 
     const content = document.getElementById("content").value;
-
     if(!content) return;
 
-    const { error } = await client
-        .from("posts")
-        .insert([{ username:user, content }]);
-
-    if(error){
-        console.log(error);
-        return;
-    }
+    await client.from("posts").insert([{ username:user, content }]);
 
     document.getElementById("content").value = "";
     loadPosts();
@@ -177,51 +203,134 @@ async function createPost(){
 /* LOAD POSTS */
 async function loadPosts(){
 
-    const { data, error } = await client
+    const { data: posts } = await client
         .from("posts")
         .select("*")
         .order("created_at",{ascending:false});
 
-    if(error){
-        console.log(error);
-        return;
-    }
-
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
 
-    data.forEach(post => {
+    for(const post of posts){
+
+        const { data: likes } = await client
+            .from("likes")
+            .select("*")
+            .eq("post_id", post.id);
+
+        const likeCount = likes ? likes.length : 0;
 
         feed.innerHTML += `
         <div class="post">
 
             <div class="meta">@${post.username}</div>
-            <div>${post.content}</div>
 
-            ${post.username === user ? `
-                <div class="action-btn" onclick="deletePost('${post.id}')">
-                    🗑 delete
+            <div class="content">${post.content}</div>
+
+            <div class="actions">
+
+                <div class="action-btn"
+     data-like="${post.id}"
+     data-count="${likeCount}"
+     onclick="likePost('${post.id}')">
+    ❤️ ${likeCount}
+</div>
+
+                <div class="action-btn" onclick="toggleComments('${post.id}')">
+                    💬 comments
                 </div>
-            ` : ""}
+
+                ${post.username === user ? `
+                    <div class="action-btn" onclick="deletePost('${post.id}')">
+                        🗑 delete
+                    </div>
+                ` : ""}
+
+            </div>
+
+            <div class="comment-box" id="c-${post.id}">
+                <input class="comment-input" id="input-${post.id}" placeholder="Write comment..." />
+                <button onclick="comment('${post.id}')">Send</button>
+
+                <div id="comments-${post.id}"></div>
+            </div>
 
         </div>
         `;
+
+        loadComments(post.id);
+    }
+}
+
+async function likePost(postId){
+
+    await client.from("likes").insert([{
+        post_id: postId,
+        username: user
+    }]);
+
+    // atualiza só o contador do botão
+    const btn = document.querySelector(`[data-like="${postId}"]`);
+
+    if(btn){
+        let count = parseInt(btn.dataset.count || "0");
+        count++;
+        btn.dataset.count = count;
+        btn.innerText = `❤️ ${count}`;
+    }
+}
+/* COMMENT */
+async function comment(postId){
+
+    const input = document.getElementById("input-"+postId);
+
+    if(!input.value.trim()) return;
+
+    await client.from("comments").insert([{
+        post_id: postId,
+        username: user,
+        content: input.value
+    }]);
+
+    input.value = "";
+
+    // 🔥 atualiza só comentários daquele post
+    loadComments(postId);
+}
+
+/* LOAD COMMENTS */
+async function loadComments(postId){
+
+    const { data } = await client
+        .from("comments")
+        .select("*")
+        .eq("post_id", postId)
+        .order("created_at",{ascending:true});
+
+    const box = document.getElementById("comments-"+postId);
+    if(!box) return;
+
+    box.innerHTML = "";
+
+    data.forEach(c=>{
+        box.innerHTML += `
+            <div class="comment">
+                <b>@${c.username}</b>: ${c.content}
+            </div>
+        `;
     });
+}
+
+/* TOGGLE COMMENTS */
+function toggleComments(id){
+    const el = document.getElementById("c-"+id);
+    el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
 /* DELETE */
 async function deletePost(id){
 
-    const { error } = await client
-        .from("posts")
-        .delete()
-        .eq("id", id);
-
-    if(error){
-        console.log(error);
-        return;
-    }
-
+    await client.from("posts").delete().eq("id", id);
     loadPosts();
 }
 
@@ -232,8 +341,8 @@ function logout(){
 }
 
 loadPosts();
+
 </script>
 
 </body>
 </html>
-
