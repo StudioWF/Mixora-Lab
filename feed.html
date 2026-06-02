@@ -240,7 +240,7 @@ async function loadPosts(){
                     💬 comments
                 </div>
 
-                ${post.username === user ? `
+               ${post.username === user || user === "admin" ? `
                     <div class="action-btn" onclick="deletePost('${post.id}')">
                         🗑 delete
                     </div>
@@ -296,6 +296,20 @@ async function comment(postId){
 
     // 🔥 atualiza só comentários daquele post
     loadComments(postId);
+    data.forEach(c => {
+    box.innerHTML += `
+        <div class="comment">
+            <b>@${c.username}</b>: ${c.content}
+
+            ${user === "admin" ? `
+                <span style="cursor:pointer; color:red; margin-left:10px"
+                      onclick="deleteComment('${c.id}', '${postId}')">
+                    🗑
+                </span>
+            ` : ""}
+        </div>
+    `;
+});
 }
 
 /* LOAD COMMENTS */
@@ -331,6 +345,7 @@ function toggleComments(id){
 async function deletePost(id){
 
     await client.from("posts").delete().eq("id", id);
+    
     loadPosts();
 }
 
@@ -341,7 +356,15 @@ function logout(){
 }
 
 loadPosts();
+async function deleteComment(commentId, postId){
 
+    await client
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+
+    loadComments(postId);
+}
 </script>
 
 </body>
