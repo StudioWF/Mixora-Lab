@@ -310,8 +310,19 @@ function toggleComments(id){
 /* DELETE POST */
 async function deletePost(id){
 
-    await client.from("posts").delete().eq("id",id);
+    const { error } = await client
+    .from("posts")
+    .delete()
+    .eq("id", id);
+
+    if(error){
+        console.log(error);
+        alert("Delete error");
+        return;
+    }
+
     loadPosts();
+}
 }
 
 /* LOGOUT */
