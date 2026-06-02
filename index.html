@@ -207,74 +207,85 @@
             position: relative;
             z-index: 10;
         }
-      @media (max-width: 768px) {
+    @media (max-width: 768px) {
+
+    body {
+        overflow-x: hidden;
+    }
 
     header {
-        padding: 12px 10px;
-        font-size: 11px;
-        letter-spacing: 1px;
+        padding: 10px 8px;
+        font-size: 10px;
         text-align: center;
     }
 
+    /* navbar vira “app buttons” */
     .navbar {
+        display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
-        margin-top: 10px;
+        gap: 6px;
+        margin-top: 8px;
     }
 
     .navbar a {
-        font-size: 11px;
-        padding: 6px 10px;
+        font-size: 10px;
+        padding: 6px 8px;
         border-radius: 8px;
         background: rgba(255,255,255,0.06);
-        backdrop-filter: blur(6px);
     }
 
-    .navbar a:hover {
-        transform: none;
-    }
-
-    .brand-container {
+    /* HERO FORÇA MOBILE REAL */
+    .hero {
         grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
         text-align: center;
-        gap: 12px;
-        padding: 0 15px;
-        margin-top: 15px;
-    }
-
-    .logo {
-        width: 140px;
+        gap: 10px;
+        margin-top: 20px;
     }
 
     .hero h1 {
-        font-size: 22px;
-        line-height: 1.2;
+        font-size: 20px;
     }
 
     .hero p {
         font-size: 13px;
-        opacity: 0.85;
+        opacity: 0.8;
     }
 
+    /* LOGO CENTRAL */
+    .brand-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .logo {
+        width: 130px;
+    }
+
+    /* CARDS MOBILE DE VERDADE */
     .container {
         grid-template-columns: 1fr;
-        padding: 15px;
-        gap: 15px;
+        padding: 12px;
+        gap: 12px;
     }
 
     .category-card {
-        height: 200px;
+        height: 180px;
     }
 
     .card-info h2 {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .card-info span {
         font-size: 10px;
     }
-
 }
     </style>
 </head>
