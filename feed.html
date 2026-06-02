@@ -173,10 +173,20 @@ async function createPost(){
 /* LOAD POSTS */
 async function loadPosts(){
 
-    const { data } = await client
+    const { data, error } = await client
     .from("posts")
     .select("*")
     .order("created_at",{ascending:false});
+
+    if(error){
+        console.log("ERRO SUPABASE:", error);
+        return;
+    }
+
+    if(!data){
+        console.log("SEM DADOS");
+        return;
+    }
 
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
@@ -195,7 +205,9 @@ async function loadPosts(){
 
                 <div class="action-btn" onclick="toggleComments('${post.id}')">💬 Comments</div>
 
-                ${post.username === user ? `<div class="action-btn" onclick="deletePost('${post.id}')">🗑 Delete</div>` : ""}
+                ${post.username === user ? `
+                <div class="action-btn" onclick="deletePost('${post.id}')">🗑 Delete</div>
+                ` : ""}
 
             </div>
 
@@ -208,11 +220,8 @@ async function loadPosts(){
 
         </div>
         `;
-
-        loadComments(post.id);
     });
 }
-
 /* COMMENTS */
 async function comment(postId){
 
