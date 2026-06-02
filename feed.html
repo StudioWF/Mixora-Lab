@@ -134,20 +134,10 @@ textarea{
 <div class="post-box">
     <textarea id="content" placeholder="Share your setup..."></textarea>
     <button onclick="createPost()">Postar</button>
-   
     
 </div>
-   <div class="comment-box">
-
-    <input id="input-${post.id}" placeholder="write comment..." />
-    <button onclick="comment('${post.id}')">Send</button>
-
-    <div id="comments-${post.id}"></div>
-
-</div>
-      <div onclick="likePost('${post.id}')">
-    ❤️ ${likeCount}
-</div>
+   
+     
     
 
 <!-- FEED -->
@@ -168,21 +158,8 @@ if(!user){
 }
 
 /* POST */
-async function likePost(postId){
 
-    await client.from("likes").insert([{
-        post_id: postId,
-        username: user
-    }]);
 
-    loadPosts(); // atualiza contador
-    const { data: likes } = await client
-    .from("likes")
-    .select("*")
-    .eq("post_id", post.id);
-
-const likeCount = likes.length;
-}
     async function createPost(){
 
     const content = document.getElementById("content").value;
@@ -256,37 +233,7 @@ function logout(){
 }
 
 loadPosts();
-async function comment(postId){
 
-    const input = document.getElementById("input-"+postId);
-
-    if(!input.value) return;
-
-    await client.from("comments").insert([{
-        post_id: postId,
-        username: user,
-        content: input.value
-    }]);
-
-    input.value = "";
-    loadComments(postId);
-}
-    async function loadComments(postId){
-
-    const { data } = await client
-        .from("comments")
-        .select("*")
-        .eq("post_id", postId)
-        .order("created_at", { ascending: true });
-
-    const box = document.getElementById("comments-" + postId);
-
-    box.innerHTML = data.map(c => `
-        <div class="comment">
-            <b>@${c.username}</b>: ${c.content}
-        </div>
-    `).join("");
-}
     
 
 </script>
