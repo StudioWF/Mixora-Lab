@@ -312,12 +312,7 @@ function logout(){
 }
 
 loadPosts();
-    const { data: likes } = await client
-    .from("likes")
-    .select("*")
-    .eq("post_id", post.id);
-
-const likeCount = likes ? likes.length : 0;
+    
 
 </script>
 
