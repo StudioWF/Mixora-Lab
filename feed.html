@@ -154,28 +154,39 @@ if(!user){
     window.location.href = "index.html";
 }
 
-/* CREATE POST */
+/* POST */
 async function createPost(){
 
     const content = document.getElementById("content").value.trim();
     if(!content) return;
 
-    await client.from("posts").insert([{
+    const { error } = await client.from("posts").insert([{
         username:user,
         content
     }]);
+
+    if(error){
+        console.log(error);
+        alert("Erro ao postar");
+        return;
+    }
 
     document.getElementById("content").value = "";
     loadPosts();
 }
 
-/* LOAD POSTS (ÚNICA VERSÃO) */
+/* LOAD POSTS */
 async function loadPosts(){
 
-    const { data: posts } = await client
+    const { data: posts, error } = await client
     .from("posts")
     .select("*")
     .order("created_at",{ascending:false});
+
+    if(error){
+        console.log(error);
+        return;
+    }
 
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
@@ -232,11 +243,17 @@ async function comment(postId){
 
     if(!value) return;
 
-    await client.from("comments").insert([{
+    const { error } = await client.from("comments").insert([{
         post_id:postId,
         username:user,
         content:value
     }]);
+
+    if(error){
+        console.log(error);
+        alert("Erro comentário");
+        return;
+    }
 
     input.value = "";
 }
@@ -252,126 +269,13 @@ async function likePost(postId){
     loadPosts();
 }
 
-/* TOGGLE COMMENTS */
+/* TOGGLE */
 function toggleComments(id){
     const el = document.getElementById("c-"+id);
     el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
 /* DELETE */
-async function deletePost(id){
-
-    await client
-    .from("posts")
-    .delete()
-    .eq("id", id);
-
-    loadPosts();
-}
-
-/* LOGOUT */
-function logout(){
-    localStorage.removeItem("user");
-    window.location.href="index.html";
-}
-
-loadPosts();
-
-/* COMMENTS */
-async function comment(postId){
-
-    const input = document.getElementById("input-"+postId);
-
-    await client.from("comments").insert([{
-        post_id:postId,
-        username:user,
-        content:input.value
-    }]);
-
-    input.value="";
-    loadComments(postId);
-}
-
-/* LOAD COMMENTS */
-async function loadPosts(){
-
-    const { data: posts } = await client
-    .from("posts")
-    .select("*")
-    .order("created_at",{ascending:false});
-
-    const feed = document.getElementById("feed");
-    feed.innerHTML = "";
-
-    for(const post of posts){
-
-        const { data: likes } = await client
-        .from("likes")
-        .select("*")
-        .eq("post_id", post.id);
-
-        const likeCount = likes ? likes.length : 0;
-
-        feed.innerHTML += `
-        <div class="post">
-
-            <div class="meta">@${post.username}</div>
-            <div>${post.content}</div>
-
-            <div class="actions">
-
-                <div class="action-btn" onclick="likePost('${post.id}')">
-                    ❤️ ${likeCount}
-                </div>
-
-                <div class="action-btn" onclick="toggleComments('${post.id}')">
-                    💬 Comments
-                </div>
-
-                ${post.username === user ? `
-                <div class="action-btn" onclick="deletePost('${post.id}')">
-                    🗑 Delete
-                </div>` : ""}
-
-                ${user === "admin" ? `
-                <div class="action-btn" onclick="adminDelete('${post.id}')">
-                    🚨 Remove
-                </div>` : ""}
-
-            </div>
-
-            <div class="comment-box" id="c-${post.id}">
-                <input id="input-${post.id}" placeholder="write comment..." />
-                <button onclick="comment('${post.id}')">Send</button>
-
-                <div id="comments-${post.id}"></div>
-            </div>
-
-        </div>
-        `;
-
-        loadComments(post.id);
-    }
-}
-
-/* LIKE */
-async function likePost(postId){
-
-    await client.from("likes").insert([{
-        post_id:postId,
-        username:user
-    }]);
-
-    alert("Liked!");
-}
-
-/* TOGGLE COMMENTS */
-function toggleComments(id){
-    const el = document.getElementById("c-"+id);
-    el.style.display = el.style.display === "block" ? "none" : "block";
-}
-
-/* DELETE POST */
 async function deletePost(id){
 
     const { error } = await client
@@ -381,22 +285,14 @@ async function deletePost(id){
 
     if(error){
         console.log(error);
-        alert("Delete error");
         return;
     }
 
     loadPosts();
 }
-}
 
-/* LOGOUT */
-function logout(){
-    localStorage.removeItem("user");
-    window.location.href="index.html";
-}
-
+/* INIT */
 loadPosts();
-
 </script>
 
 </body>
