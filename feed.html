@@ -201,7 +201,9 @@ async function loadPosts(){
 
             <div class="actions">
 
-                <div class="action-btn" onclick="likePost('${post.id}')">❤️ Like</div>
+               <div class="action-btn" onclick="likePost('${post.id}')">
+    ❤️ ${post.likeCount ?? 0}
+</div>
 
                 <div class="action-btn" onclick="toggleComments('${post.id}')">💬 Comments</div>
 
@@ -268,7 +270,7 @@ async function likePost(postId){
         username:user
     }]);
 
-    alert("Liked!");
+   
 }
 
 /* TOGGLE COMMENTS */
