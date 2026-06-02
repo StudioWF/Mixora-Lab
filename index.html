@@ -36,20 +36,29 @@
             z-index: 10;
         }
 
+        /* =======================
+           🎧 SPOTIFY HEADER STYLE
+        ======================= */
+
         header {
             background: rgba(15, 15, 20, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
             padding: 15px;
             text-align: center;
+
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 2px;
             font-size: 14px;
+
             position: sticky;
             top: 0;
             z-index: 1000;
+
             transition: all 0.3s ease;
         }
 
@@ -93,6 +102,8 @@
         .navbar a:hover::after {
             width: 100%;
         }
+
+        /* ======================= */
 
         .brand-container {
             max-width: 1100px;
@@ -196,70 +207,40 @@
             position: relative;
             z-index: 10;
         }
-
-        /* =========================
-           ADIÇÃO SOMENTE MOBILE FIX
-        ========================= */
-
         @media (max-width: 768px) {
 
-            header {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
-                padding: 10px;
-                font-size: 10px;
-                letter-spacing: 1px;
-            }
+    header {
+        padding: 12px 10px;
+        font-size: 11px;
+        letter-spacing: 1px;
+    }
 
-            .navbar {
-                width: 100%;
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 10px;
-                margin-top: 5px;
-            }
+    .navbar {
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+    }
 
-            .navbar a {
-                display: block;
-                text-align: center;
-                font-size: 11px;
-                padding: 8px 6px;
-                border-radius: 10px;
-                background: rgba(255,255,255,0.06);
-                backdrop-filter: blur(8px);
-            }
+    .navbar a {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
 
-            .navbar a::after {
-                display: none;
-            }
+    /* melhora toque no mobile (tipo app) */
+    .navbar a:hover {
+        transform: none;
+    }
 
-            .navbar a:hover {
-                transform: none;
-                color: #40c1ba;
-            }
+    .brand-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 15px;
+    }
 
-            .brand-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .logo {
-                width: 140px;
-            }
-
-            .hero h1 {
-                font-size: 20px;
-            }
-
-            .hero p {
-                font-size: 13px;
-            }
-        }
+    .logo {
+        width: 170px;
+    }
+}
     </style>
 </head>
 
@@ -274,7 +255,9 @@
         <a href="interface.html">Interfaces</a>
         <a href="Fone.html">Fones</a>
         <a href="StudioGearDeals.html">Setup</a>
+        <a href="community.html">Community</a>
     </nav>
+    
 </header>
 
 <div class="brand-container">
@@ -320,6 +303,16 @@
         <div class="card-info">
             <span>Monitoramento</span>
             <h2>Fones de Ouvido</h2>
+        </div>
+    </a>
+    <div class="comunnity">
+
+    <a href="community.html" class="category-card">
+        <div class="card-bg" style="background-image: url('fotos/Gemini_Generated_Image_tqvnnxtqvnnxtqvn.png');"></div>
+        <div class="overlay"></div>
+        <div class="card-info">
+            <span>comunidade mixora</span>
+            <h2>Converse com outras pessoas</h2>
         </div>
     </a>
 
