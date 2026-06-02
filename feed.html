@@ -154,69 +154,130 @@ if(!user){
     window.location.href = "index.html";
 }
 
-/* POST */
+/* CREATE POST */
 async function createPost(){
 
     const content = document.getElementById("content").value;
-
     if(!content) return;
 
-    const { error } = await client
-        .from("posts")
-        .insert([{ username: user, content }]);
-
-    if(error){
-        console.log(error);
-        return;
-    }
+    await client.from("posts").insert([{ username:user, content }]);
 
     document.getElementById("content").value = "";
     loadPosts();
 }
 
-/* LOAD */
+/* LOAD POSTS */
 async function loadPosts(){
 
-    const { data, error } = await client
+    const { data } = await client
         .from("posts")
         .select("*")
-        .order("created_at", { ascending:false });
-
-    if(error){
-        console.log(error);
-        return;
-    }
+        .order("created_at",{ascending:false});
 
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
 
-    data.forEach(post => {
+    for(const post of data){
+
+        const likes = await client
+            .from("likes")
+            .select("*")
+            .eq("post_id", post.id);
+
+        const comments = await client
+            .from("comments")
+            .select("*")
+            .eq("post_id", post.id)
+            .order("created_at",{ascending:true});
 
         feed.innerHTML += `
         <div class="post">
-            <div class="meta">@${post.username}</div>
+
+            <div class="meta">
+                @${post.username}
+                <span class="arrow" onclick="toggle('${post.id}')">⬆</span>
+            </div>
+
             <div>${post.content}</div>
 
-            ${post.username === user ? `
-                <div class="action-btn" onclick="deletePost('${post.id}')">🗑 Delete</div>
-            ` : ""}
+            <div class="actions">
+                <div class="btn" onclick="likePost('${post.id}')">
+                    ❤️ ${likes.data.length}
+                </div>
+
+                <div class="btn" onclick="toggle('${post.id}')">
+                    💬 ${comments.data.length}
+                </div>
+
+                ${post.username === user ? `
+                <div class="btn" onclick="deletePost('${post.id}')">🗑</div>
+                ` : ""}
+            </div>
+
+            <div class="comment-box" id="c-${post.id}">
+                
+                <input id="input-${post.id}" placeholder="write comment..." />
+                <button onclick="comment('${post.id}')">Send</button>
+
+                <div id="comments-${post.id}">
+                    ${comments.data.map(c => `
+                        <div class="comment">
+                            <b>@${c.username}</b>: ${c.content}
+                        </div>
+                    `).join("")}
+                </div>
+
+            </div>
+
         </div>
         `;
-    });
+    }
+}
+
+/* LIKE */
+async function likePost(postId){
+
+    await client.from("likes").insert([{
+        post_id: postId,
+        username: user
+    }]);
+
+    loadPosts();
+}
+
+/* COMMENT */
+async function comment(postId){
+
+    const input = document.getElementById("input-"+postId);
+
+    if(!input.value) return;
+
+    await client.from("comments").insert([{
+        post_id: postId,
+        username: user,
+        content: input.value
+    }]);
+
+    input.value = "";
+    loadPosts();
+}
+
+/* TOGGLE COMMENTS */
+function toggle(id){
+
+    const box = document.getElementById("c-"+id);
+
+    if(box.style.display === "block"){
+        box.style.display = "none";
+    } else {
+        box.style.display = "block";
+    }
 }
 
 /* DELETE */
 async function deletePost(id){
 
-    const { error } = await client
-        .from("posts")
-        .delete()
-        .eq("id", id);
-
-    if(error){
-        console.log(error);
-        return;
-    }
+    await client.from("posts").delete().eq("id", id);
 
     loadPosts();
 }
@@ -224,7 +285,7 @@ async function deletePost(id){
 /* LOGOUT */
 function logout(){
     localStorage.removeItem("user");
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
 loadPosts();
