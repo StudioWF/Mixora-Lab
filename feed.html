@@ -157,8 +157,7 @@ if(!user){
 /* CREATE POST */
 async function createPost(){
 
-    const content = document.getElementById("content").value;
-
+    const content = document.getElementById("content").value.trim();
     if(!content) return;
 
     await client.from("posts").insert([{
@@ -170,10 +169,10 @@ async function createPost(){
     loadPosts();
 }
 
-/* LOAD POSTS */
+/* LOAD POSTS (ÚNICA VERSÃO) */
 async function loadPosts(){
 
-    const { data } = await client
+    const { data: posts } = await client
     .from("posts")
     .select("*")
     .order("created_at",{ascending:false});
@@ -181,7 +180,14 @@ async function loadPosts(){
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
 
-    data.forEach(post => {
+    for(const post of posts){
+
+        const { data: likes } = await client
+        .from("likes")
+        .select("*")
+        .eq("post_id", post.id);
+
+        const likeCount = likes ? likes.length : 0;
 
         feed.innerHTML += `
         <div class="post">
@@ -191,11 +197,18 @@ async function loadPosts(){
 
             <div class="actions">
 
-                <div class="action-btn" onclick="likePost('${post.id}')">❤️ Like</div>
+                <div class="action-btn" onclick="likePost('${post.id}')">
+                    ❤️ ${likeCount}
+                </div>
 
-                <div class="action-btn" onclick="toggleComments('${post.id}')">💬 Comments</div>
+                <div class="action-btn" onclick="toggleComments('${post.id}')">
+                    💬 Comments
+                </div>
 
-                ${post.username === user ? `<div class="action-btn" onclick="deletePost('${post.id}')">🗑 Delete</div>` : ""}
+                ${post.username === user ? `
+                <div class="action-btn" onclick="deletePost('${post.id}')">
+                    🗑 Delete
+                </div>` : ""}
 
             </div>
 
@@ -208,10 +221,61 @@ async function loadPosts(){
 
         </div>
         `;
-
-        loadComments(post.id);
-    });
+    }
 }
+
+/* COMMENT */
+async function comment(postId){
+
+    const input = document.getElementById("input-"+postId);
+    const value = input.value.trim();
+
+    if(!value) return;
+
+    await client.from("comments").insert([{
+        post_id:postId,
+        username:user,
+        content:value
+    }]);
+
+    input.value = "";
+}
+
+/* LIKE */
+async function likePost(postId){
+
+    await client.from("likes").insert([{
+        post_id:postId,
+        username:user
+    }]);
+
+    loadPosts();
+}
+
+/* TOGGLE COMMENTS */
+function toggleComments(id){
+    const el = document.getElementById("c-"+id);
+    el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+/* DELETE */
+async function deletePost(id){
+
+    await client
+    .from("posts")
+    .delete()
+    .eq("id", id);
+
+    loadPosts();
+}
+
+/* LOGOUT */
+function logout(){
+    localStorage.removeItem("user");
+    window.location.href="index.html";
+}
+
+loadPosts();
 
 /* COMMENTS */
 async function comment(postId){
