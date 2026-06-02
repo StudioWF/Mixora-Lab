@@ -154,7 +154,7 @@ if(!user){
     window.location.href = "index.html";
 }
 
-/* POST */
+/* CREATE POST */
 async function createPost(){
 
     const content = document.getElementById("content").value;
@@ -163,7 +163,7 @@ async function createPost(){
 
     const { error } = await client
         .from("posts")
-        .insert([{ username: user, content }]);
+        .insert([{ username:user, content }]);
 
     if(error){
         console.log(error);
@@ -174,13 +174,13 @@ async function createPost(){
     loadPosts();
 }
 
-/* LOAD */
+/* LOAD POSTS */
 async function loadPosts(){
 
     const { data, error } = await client
         .from("posts")
         .select("*")
-        .order("created_at", { ascending:false });
+        .order("created_at",{ascending:false});
 
     if(error){
         console.log(error);
@@ -194,12 +194,16 @@ async function loadPosts(){
 
         feed.innerHTML += `
         <div class="post">
+
             <div class="meta">@${post.username}</div>
             <div>${post.content}</div>
 
             ${post.username === user ? `
-                <div class="action-btn" onclick="deletePost('${post.id}')">🗑 Delete</div>
+                <div class="action-btn" onclick="deletePost('${post.id}')">
+                    🗑 delete
+                </div>
             ` : ""}
+
         </div>
         `;
     });
@@ -224,7 +228,7 @@ async function deletePost(id){
 /* LOGOUT */
 function logout(){
     localStorage.removeItem("user");
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
 loadPosts();
