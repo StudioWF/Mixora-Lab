@@ -229,13 +229,20 @@ async function comment(postId){
 
     const input = document.getElementById("input-"+postId);
 
-    await client.from("comments").insert([{
-        post_id:postId,
-        username:user,
-        content:input.value
+    if(!input.value) return;
+
+    const { error } = await client.from("comments").insert([{
+        post_id: postId,
+        username: user,
+        content: input.value
     }]);
 
-    input.value="";
+    if(error){
+        console.log(error);
+        return;
+    }
+
+    input.value = "";
     loadComments(postId);
 }
 
@@ -281,15 +288,14 @@ function toggleComments(id){
 
 /* DELETE POST */
 async function deletePost(id){
-
     const { error } = await client
-    .from("posts")
-    .delete()
-    .eq("id", id);
+        .from("posts")
+        .delete()
+        .eq("id", id);
 
     if(error){
-        console.log("DELETE ERROR:", error);
-        alert("Não foi possível deletar");
+        console.log(error);
+        alert("Erro ao deletar");
         return;
     }
 
