@@ -378,3 +378,20 @@ async function loginAccount() {
 
 </body>
 </html>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Entrar / Criar conta</h1>
+
+    <input id="username" type="text" placeholder="usuário" />
+    <input id="password" type="password" placeholder="senha" />
+
+    <button onclick="loginAccount()">Entrar</button>
+    <button onclick="createAccount()">Criar conta</button>
+
+    <p id="status"></p>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
