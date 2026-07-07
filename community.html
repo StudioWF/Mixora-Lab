@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-
 :root {
     --bg: #0f0f14;
     --card: rgba(27,27,37,0.75);
@@ -33,7 +31,6 @@ body {
     overflow-x: hidden;
 }
 
-/* BACKGROUND */
 body::before {
     content: "";
     position: fixed;
@@ -46,7 +43,6 @@ body::before {
     z-index: -1;
 }
 
-/* HEADER */
 header {
     position: sticky;
     top: 0;
@@ -89,7 +85,6 @@ header {
     color: var(--brand);
 }
 
-/* HERO */
 .hero {
     max-width: 1200px;
     margin: 60px auto;
@@ -121,7 +116,6 @@ header {
     margin-bottom: 15px;
 }
 
-/* CARD LOGIN */
 .card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -174,7 +168,6 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* PREVIEW */
 .preview {
     max-width: 1200px;
     margin: 40px auto;
@@ -191,7 +184,6 @@ button:hover {
     border-radius: 16px;
 }
 
-/* FOOTER */
 footer {
     text-align: center;
     padding: 40px;
@@ -199,9 +191,7 @@ footer {
     font-size: 13px;
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
-
 .hero {
     grid-template-columns: 1fr;
     text-align: center;
@@ -220,9 +210,7 @@ footer {
     flex-wrap: wrap;
     justify-content: center;
 }
-
 }
-
 </style>
 </head>
 
@@ -258,7 +246,7 @@ footer {
     <input id="password" type="password" placeholder="Password">
 
     <button onclick="loginAccount()">Login</button>
-<button onclick="createAccount()">Create account</button>
+    <button onclick="createAccount()">Create account</button>
 
     <p id="status"></p>
 </div>
@@ -289,109 +277,83 @@ Mixora Lab Community © 2026
 </footer>
 
 <script>
-
 const SUPABASE_URL = "https://mrkhxqojxqnqzaeulpvh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_fysx_fm474qhZzH3pW3qnw_7qEgvNmj";
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function createAccount() {
-
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
     const status = document.getElementById("status");
 
-    if(username.length < 3){
+    if (username.length < 3) {
         status.innerText = "Username too short";
         return;
     }
 
-    if(password.length < 6){
+    if (password.length < 6) {
         status.innerText = "Password too short";
         return;
     }
 
-    // verifica se username existe
     const { data } = await client
-        .from('users')
-        .select('*')
-        .eq('username', username)
+        .from("users")
+        .select("*")
+        .eq("username", username)
         .single();
 
-    if(data){
+    if (data) {
         status.innerText = "Username already exists";
         return;
     }
 
-    // cria conta
     const { error } = await client
-        .from('users')
+        .from("users")
         .insert([{ username, password }]);
 
-    if(error){
-        console.log(error);
+    if (error) {
         status.innerText = error.message;
         return;
     }
 
-    // SALVA LOGIN + REDIRECIONA (CERTO)
     localStorage.setItem("user", username);
-
     status.innerText = "Account created successfully";
 
     setTimeout(() => {
         window.location.href = "feed.html";
     }, 800);
 }
-async function loginAccount() {
 
+async function loginAccount() {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
     const status = document.getElementById("status");
 
     const { data, error } = await client
-        .from('users')
-        .select('*')
-        .eq('username', username)
+        .from("users")
+        .select("*")
+        .eq("username", username)
         .single();
 
-    if(error || !data){
+    if (error || !data) {
         status.innerText = "User not found";
         return;
     }
 
-    if(data.password !== password){
+    if (data.password !== password) {
         status.innerText = "Wrong password";
         return;
     }
 
     localStorage.setItem("user", username);
-
     status.innerText = "Login successful";
 
     setTimeout(() => {
         window.location.href = "feed.html";
     }, 500);
 }
-
 </script>
 
-</body>
-</html>
-    <title>Login</title>
-</head>
-<body>
-    <h1>Entrar / Criar conta</h1>
-
-    <input id="username" type="text" placeholder="usuário" />
-    <input id="password" type="password" placeholder="senha" />
-
-    <button onclick="loginAccount()">Entrar</button>
-    <button onclick="createAccount()">Criar conta</button>
-
-    <p id="status"></p>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
 </body>
 </html>
