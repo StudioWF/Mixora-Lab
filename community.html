@@ -171,7 +171,6 @@ button:hover {
     opacity: 0.9;
 }
 
-/* Nova classe para diferenciar o botão de Login */
 .btn-secondary {
     background: transparent;
     border: 1px solid var(--brand);
@@ -300,7 +299,6 @@ Mixora Lab Community © 2026
 const SUPABASE_URL = "https://mrkhxqojxqnqzaeulpvh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_fysx_fm474qhZzH3pW3qnw_7qEgvNmj";
 
-// Inicialização correta usando a nova sintaxe global da v2
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function createAccount() {
@@ -317,8 +315,6 @@ async function createAccount() {
         status.innerText = "Password too short";
         return;
     }
-
-    // Corrigido para buscar sem causar quebras caso o usuário não exista
     const { data } = await client
         .from("users")
         .select("username")
